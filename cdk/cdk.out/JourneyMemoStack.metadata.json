@@ -1,0 +1,326 @@
+{
+  "/JourneyMemoStack/TravelsTable": [
+    {
+      "type": "aws:cdk:hasPhysicalName",
+      "data": {
+        "Ref": "TravelsTableA26EC212"
+      }
+    }
+  ],
+  "/JourneyMemoStack/Custom::S3AutoDeleteObjectsCustomResourceProvider": [
+    {
+      "type": "aws:cdk:is-custom-resource-handler-customResourceProvider",
+      "data": true
+    }
+  ],
+  "/JourneyMemoStack/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C": [
+    {
+      "type": "aws:cdk:is-custom-resource-handler-singleton",
+      "data": true
+    },
+    {
+      "type": "aws:cdk:is-custom-resource-handler-runtime-family",
+      "data": 2
+    }
+  ],
+  "/JourneyMemoStack/CloudFrontURL": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CloudFrontURL"
+    }
+  ],
+  "/JourneyMemoStack/ApiEndpoint": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ApiEndpoint"
+    }
+  ],
+  "/JourneyMemoStack/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    }
+  ],
+  "/JourneyMemoStack/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    }
+  ],
+  "/JourneyMemoStack/TravelsTable/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TravelsTableA26EC212"
+    }
+  ],
+  "/JourneyMemoStack/AuthFunction/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AuthFunctionA1CD5E0F"
+    }
+  ],
+  "/JourneyMemoStack/TravelsFunction/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TravelsFunctionDD906EF7"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApi7FCE08F2"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Endpoint": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApiEndpointB28F80A1"
+    }
+  ],
+  "/JourneyMemoStack/ApiRewriteFunction/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ApiRewriteFunction01D3EF57"
+    }
+  ],
+  "/JourneyMemoStack/WebsiteBucket/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WebsiteBucket75C24D94"
+    },
+    {
+      "type": "aws:cdk:analytics:mixin",
+      "data": {
+        "mixin": "aws-cdk-lib.aws_s3.mixins.BucketAutoDeleteObjects"
+      }
+    }
+  ],
+  "/JourneyMemoStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+    }
+  ],
+  "/JourneyMemoStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F"
+    }
+  ],
+  "/JourneyMemoStack/OAC/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "OAC5B452445"
+    }
+  ],
+  "/JourneyMemoStack/Distribution/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Distribution830FAC52"
+    }
+  ],
+  "/JourneyMemoStack/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536"
+    }
+  ],
+  "/JourneyMemoStack/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    }
+  ],
+  "/JourneyMemoStack/AuthFunction/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AuthFunctionServiceRole87A7A68C"
+    }
+  ],
+  "/JourneyMemoStack/TravelsFunction/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TravelsFunctionServiceRoleEE2BCC3D"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Deployment/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApiDeployment6CE22A8Bc46b4eeeb768ec8bed8570f768bde41b"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/DeploymentStage.prod/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApiDeploymentStageprodAD6AC5C1"
+    }
+  ],
+  "/JourneyMemoStack/WebsiteBucket/Policy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WebsiteBucketPolicyE10E3262"
+    },
+    {
+      "type": "aws:cdk:analytics:mixin",
+      "data": {
+        "mixin": "aws-cdk-lib.aws_s3.mixins.BucketPolicyStatements"
+      }
+    }
+  ],
+  "/JourneyMemoStack/WebsiteBucket/AutoDeleteObjectsCustomResource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WebsiteBucketAutoDeleteObjectsCustomResource8750E461"
+    }
+  ],
+  "/JourneyMemoStack/WebsiteDeployment/AwsCliLayer/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WebsiteDeploymentAwsCliLayer5BFD2264"
+    }
+  ],
+  "/JourneyMemoStack/WebsiteDeployment/CustomResource/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WebsiteDeploymentCustomResourceA1782F82"
+    }
+  ],
+  "/JourneyMemoStack/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265"
+    }
+  ],
+  "/JourneyMemoStack/TravelsFunction/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "TravelsFunctionServiceRoleDefaultPolicyA9A972E0"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Default/OPTIONS/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApiOPTIONS6BA49A2E"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Default/auth/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApiauth839E1BCD"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Default/travels/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApitravels2F04468D"
+    }
+  ],
+  "/JourneyMemoStack/WebsiteDeployment/CustomResourceHandler/inlinePolicyAddedToExecutionRole-0/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "WebsiteDeploymentCustomResourceHandlerinlinePolicyAddedToExecutionRole08FB09179"
+    }
+  ],
+  "/JourneyMemoStack/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Default/auth/OPTIONS/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApiauthOPTIONS9B2ACCD2"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Default/auth/POST/ApiPermission.JourneyMemoStackJourneyMemoApiFE3BC602.POST..auth": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApiauthPOSTApiPermissionJourneyMemoStackJourneyMemoApiFE3BC602POSTauthEBCFB2D7"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Default/auth/POST/ApiPermission.Test.JourneyMemoStackJourneyMemoApiFE3BC602.POST..auth": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApiauthPOSTApiPermissionTestJourneyMemoStackJourneyMemoApiFE3BC602POSTauth6ACA7DA6"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Default/auth/POST/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApiauthPOST31EDA598"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Default/travels/OPTIONS/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApitravelsOPTIONS657B6A56"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Default/travels/GET/ApiPermission.JourneyMemoStackJourneyMemoApiFE3BC602.GET..travels": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApitravelsGETApiPermissionJourneyMemoStackJourneyMemoApiFE3BC602GETtravelsA4906CC9"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Default/travels/GET/ApiPermission.Test.JourneyMemoStackJourneyMemoApiFE3BC602.GET..travels": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApitravelsGETApiPermissionTestJourneyMemoStackJourneyMemoApiFE3BC602GETtravels386093BA"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Default/travels/GET/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApitravelsGETC66B0653"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Default/travels/{prefectureCode}/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApitravelsprefectureCode5A9AFCDB"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Default/travels/{prefectureCode}/OPTIONS/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApitravelsprefectureCodeOPTIONS4D2B41B2"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Default/travels/{prefectureCode}/GET/ApiPermission.JourneyMemoStackJourneyMemoApiFE3BC602.GET..travels.{prefectureCode}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApitravelsprefectureCodeGETApiPermissionJourneyMemoStackJourneyMemoApiFE3BC602GETtravelsprefectureCodeA8A0B6E5"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Default/travels/{prefectureCode}/GET/ApiPermission.Test.JourneyMemoStackJourneyMemoApiFE3BC602.GET..travels.{prefectureCode}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApitravelsprefectureCodeGETApiPermissionTestJourneyMemoStackJourneyMemoApiFE3BC602GETtravelsprefectureCode16ED50AC"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Default/travels/{prefectureCode}/GET/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApitravelsprefectureCodeGETD85B7C3F"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Default/travels/{prefectureCode}/PUT/ApiPermission.JourneyMemoStackJourneyMemoApiFE3BC602.PUT..travels.{prefectureCode}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApitravelsprefectureCodePUTApiPermissionJourneyMemoStackJourneyMemoApiFE3BC602PUTtravelsprefectureCodeB277A214"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Default/travels/{prefectureCode}/PUT/ApiPermission.Test.JourneyMemoStackJourneyMemoApiFE3BC602.PUT..travels.{prefectureCode}": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApitravelsprefectureCodePUTApiPermissionTestJourneyMemoStackJourneyMemoApiFE3BC602PUTtravelsprefectureCodeA70D3A23"
+    }
+  ],
+  "/JourneyMemoStack/JourneyMemoApi/Default/travels/{prefectureCode}/PUT/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "JourneyMemoApitravelsprefectureCodePUT0772E4EC"
+    }
+  ]
+}

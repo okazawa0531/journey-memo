@@ -1,0 +1,1542 @@
+{
+ "Resources": {
+  "TravelsTableA26EC212": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "prefectureCode",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "prefectureCode",
+      "KeyType": "HASH"
+     }
+    ],
+    "TableName": "journey-memo-travels"
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/TravelsTable/Resource"
+   }
+  },
+  "AuthFunctionServiceRole87A7A68C": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/AuthFunction/ServiceRole/Resource"
+   }
+  },
+  "AuthFunctionA1CD5E0F": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-820242939522-us-east-1",
+     "S3Key": "3af4a8b3c778ff05355832a677e50184cf5996decdc5676f6b8b422bbb11d70b.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "TABLE_NAME": {
+       "Ref": "TravelsTableA26EC212"
+      },
+      "JWT_SECRET": "journey-memo-secret-change-in-production"
+     }
+    },
+    "Handler": "index.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "AuthFunctionServiceRole87A7A68C",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Timeout": 10
+   },
+   "DependsOn": [
+    "AuthFunctionServiceRole87A7A68C"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/AuthFunction/Resource",
+    "aws:asset:path": "asset.3af4a8b3c778ff05355832a677e50184cf5996decdc5676f6b8b422bbb11d70b",
+    "aws:asset:is-bundled": true,
+    "aws:asset:property": "Code"
+   }
+  },
+  "TravelsFunctionServiceRoleEE2BCC3D": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/TravelsFunction/ServiceRole/Resource"
+   }
+  },
+  "TravelsFunctionServiceRoleDefaultPolicyA9A972E0": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:UpdateItem"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "TravelsTableA26EC212",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "TravelsFunctionServiceRoleDefaultPolicyA9A972E0",
+    "Roles": [
+     {
+      "Ref": "TravelsFunctionServiceRoleEE2BCC3D"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/TravelsFunction/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "TravelsFunctionDD906EF7": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-820242939522-us-east-1",
+     "S3Key": "ce21293a4bb6dbf3bc0f21c8808574faf7f0df0d0168334f10b93021d08d6639.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "TABLE_NAME": {
+       "Ref": "TravelsTableA26EC212"
+      },
+      "JWT_SECRET": "journey-memo-secret-change-in-production"
+     }
+    },
+    "Handler": "index.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "TravelsFunctionServiceRoleEE2BCC3D",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Timeout": 10
+   },
+   "DependsOn": [
+    "TravelsFunctionServiceRoleDefaultPolicyA9A972E0",
+    "TravelsFunctionServiceRoleEE2BCC3D"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/TravelsFunction/Resource",
+    "aws:asset:path": "asset.ce21293a4bb6dbf3bc0f21c8808574faf7f0df0d0168334f10b93021d08d6639",
+    "aws:asset:is-bundled": true,
+    "aws:asset:property": "Code"
+   }
+  },
+  "JourneyMemoApi7FCE08F2": {
+   "Type": "AWS::ApiGateway::RestApi",
+   "Properties": {
+    "Name": "journey-memo-api"
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Resource"
+   }
+  },
+  "JourneyMemoApiDeployment6CE22A8Bc46b4eeeb768ec8bed8570f768bde41b": {
+   "Type": "AWS::ApiGateway::Deployment",
+   "Properties": {
+    "Description": "Automatically created by the RestApi construct",
+    "RestApiId": {
+     "Ref": "JourneyMemoApi7FCE08F2"
+    }
+   },
+   "DependsOn": [
+    "JourneyMemoApiauthOPTIONS9B2ACCD2",
+    "JourneyMemoApiauthPOST31EDA598",
+    "JourneyMemoApiauth839E1BCD",
+    "JourneyMemoApiOPTIONS6BA49A2E",
+    "JourneyMemoApitravelsprefectureCodeGETD85B7C3F",
+    "JourneyMemoApitravelsprefectureCodeOPTIONS4D2B41B2",
+    "JourneyMemoApitravelsprefectureCodePUT0772E4EC",
+    "JourneyMemoApitravelsprefectureCode5A9AFCDB",
+    "JourneyMemoApitravelsGETC66B0653",
+    "JourneyMemoApitravelsOPTIONS657B6A56",
+    "JourneyMemoApitravels2F04468D"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Deployment/Resource",
+    "aws:cdk:do-not-refactor": true
+   }
+  },
+  "JourneyMemoApiDeploymentStageprodAD6AC5C1": {
+   "Type": "AWS::ApiGateway::Stage",
+   "Properties": {
+    "DeploymentId": {
+     "Ref": "JourneyMemoApiDeployment6CE22A8Bc46b4eeeb768ec8bed8570f768bde41b"
+    },
+    "RestApiId": {
+     "Ref": "JourneyMemoApi7FCE08F2"
+    },
+    "StageName": "prod"
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/DeploymentStage.prod/Resource"
+   }
+  },
+  "JourneyMemoApiOPTIONS6BA49A2E": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Fn::GetAtt": [
+      "JourneyMemoApi7FCE08F2",
+      "RootResourceId"
+     ]
+    },
+    "RestApiId": {
+     "Ref": "JourneyMemoApi7FCE08F2"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Default/OPTIONS/Resource"
+   }
+  },
+  "JourneyMemoApiauth839E1BCD": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "JourneyMemoApi7FCE08F2",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "auth",
+    "RestApiId": {
+     "Ref": "JourneyMemoApi7FCE08F2"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Default/auth/Resource"
+   }
+  },
+  "JourneyMemoApiauthOPTIONS9B2ACCD2": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "JourneyMemoApiauth839E1BCD"
+    },
+    "RestApiId": {
+     "Ref": "JourneyMemoApi7FCE08F2"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Default/auth/OPTIONS/Resource"
+   }
+  },
+  "JourneyMemoApiauthPOSTApiPermissionJourneyMemoStackJourneyMemoApiFE3BC602POSTauthEBCFB2D7": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "AuthFunctionA1CD5E0F",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:820242939522:",
+       {
+        "Ref": "JourneyMemoApi7FCE08F2"
+       },
+       "/",
+       {
+        "Ref": "JourneyMemoApiDeploymentStageprodAD6AC5C1"
+       },
+       "/POST/auth"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Default/auth/POST/ApiPermission.JourneyMemoStackJourneyMemoApiFE3BC602.POST..auth"
+   }
+  },
+  "JourneyMemoApiauthPOSTApiPermissionTestJourneyMemoStackJourneyMemoApiFE3BC602POSTauth6ACA7DA6": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "AuthFunctionA1CD5E0F",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:820242939522:",
+       {
+        "Ref": "JourneyMemoApi7FCE08F2"
+       },
+       "/test-invoke-stage/POST/auth"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Default/auth/POST/ApiPermission.Test.JourneyMemoStackJourneyMemoApiFE3BC602.POST..auth"
+   }
+  },
+  "JourneyMemoApiauthPOST31EDA598": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "POST",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "AuthFunctionA1CD5E0F",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "JourneyMemoApiauth839E1BCD"
+    },
+    "RestApiId": {
+     "Ref": "JourneyMemoApi7FCE08F2"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Default/auth/POST/Resource"
+   }
+  },
+  "JourneyMemoApitravels2F04468D": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "JourneyMemoApi7FCE08F2",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "travels",
+    "RestApiId": {
+     "Ref": "JourneyMemoApi7FCE08F2"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Default/travels/Resource"
+   }
+  },
+  "JourneyMemoApitravelsOPTIONS657B6A56": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "JourneyMemoApitravels2F04468D"
+    },
+    "RestApiId": {
+     "Ref": "JourneyMemoApi7FCE08F2"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Default/travels/OPTIONS/Resource"
+   }
+  },
+  "JourneyMemoApitravelsGETApiPermissionJourneyMemoStackJourneyMemoApiFE3BC602GETtravelsA4906CC9": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "TravelsFunctionDD906EF7",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:820242939522:",
+       {
+        "Ref": "JourneyMemoApi7FCE08F2"
+       },
+       "/",
+       {
+        "Ref": "JourneyMemoApiDeploymentStageprodAD6AC5C1"
+       },
+       "/GET/travels"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Default/travels/GET/ApiPermission.JourneyMemoStackJourneyMemoApiFE3BC602.GET..travels"
+   }
+  },
+  "JourneyMemoApitravelsGETApiPermissionTestJourneyMemoStackJourneyMemoApiFE3BC602GETtravels386093BA": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "TravelsFunctionDD906EF7",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:820242939522:",
+       {
+        "Ref": "JourneyMemoApi7FCE08F2"
+       },
+       "/test-invoke-stage/GET/travels"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Default/travels/GET/ApiPermission.Test.JourneyMemoStackJourneyMemoApiFE3BC602.GET..travels"
+   }
+  },
+  "JourneyMemoApitravelsGETC66B0653": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "GET",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "TravelsFunctionDD906EF7",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "JourneyMemoApitravels2F04468D"
+    },
+    "RestApiId": {
+     "Ref": "JourneyMemoApi7FCE08F2"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Default/travels/GET/Resource"
+   }
+  },
+  "JourneyMemoApitravelsprefectureCode5A9AFCDB": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Ref": "JourneyMemoApitravels2F04468D"
+    },
+    "PathPart": "{prefectureCode}",
+    "RestApiId": {
+     "Ref": "JourneyMemoApi7FCE08F2"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Default/travels/{prefectureCode}/Resource"
+   }
+  },
+  "JourneyMemoApitravelsprefectureCodeOPTIONS4D2B41B2": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "ApiKeyRequired": false,
+    "AuthorizationType": "NONE",
+    "HttpMethod": "OPTIONS",
+    "Integration": {
+     "IntegrationResponses": [
+      {
+       "ResponseParameters": {
+        "method.response.header.Access-Control-Allow-Headers": "'Content-Type,Authorization'",
+        "method.response.header.Access-Control-Allow-Origin": "'*'",
+        "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD'"
+       },
+       "StatusCode": "204"
+      }
+     ],
+     "RequestTemplates": {
+      "application/json": "{ statusCode: 200 }"
+     },
+     "Type": "MOCK"
+    },
+    "MethodResponses": [
+     {
+      "ResponseParameters": {
+       "method.response.header.Access-Control-Allow-Headers": true,
+       "method.response.header.Access-Control-Allow-Origin": true,
+       "method.response.header.Access-Control-Allow-Methods": true
+      },
+      "StatusCode": "204"
+     }
+    ],
+    "ResourceId": {
+     "Ref": "JourneyMemoApitravelsprefectureCode5A9AFCDB"
+    },
+    "RestApiId": {
+     "Ref": "JourneyMemoApi7FCE08F2"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Default/travels/{prefectureCode}/OPTIONS/Resource"
+   }
+  },
+  "JourneyMemoApitravelsprefectureCodeGETApiPermissionJourneyMemoStackJourneyMemoApiFE3BC602GETtravelsprefectureCodeA8A0B6E5": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "TravelsFunctionDD906EF7",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:820242939522:",
+       {
+        "Ref": "JourneyMemoApi7FCE08F2"
+       },
+       "/",
+       {
+        "Ref": "JourneyMemoApiDeploymentStageprodAD6AC5C1"
+       },
+       "/GET/travels/*"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Default/travels/{prefectureCode}/GET/ApiPermission.JourneyMemoStackJourneyMemoApiFE3BC602.GET..travels.{prefectureCode}"
+   }
+  },
+  "JourneyMemoApitravelsprefectureCodeGETApiPermissionTestJourneyMemoStackJourneyMemoApiFE3BC602GETtravelsprefectureCode16ED50AC": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "TravelsFunctionDD906EF7",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:820242939522:",
+       {
+        "Ref": "JourneyMemoApi7FCE08F2"
+       },
+       "/test-invoke-stage/GET/travels/*"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Default/travels/{prefectureCode}/GET/ApiPermission.Test.JourneyMemoStackJourneyMemoApiFE3BC602.GET..travels.{prefectureCode}"
+   }
+  },
+  "JourneyMemoApitravelsprefectureCodeGETD85B7C3F": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "GET",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "TravelsFunctionDD906EF7",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "JourneyMemoApitravelsprefectureCode5A9AFCDB"
+    },
+    "RestApiId": {
+     "Ref": "JourneyMemoApi7FCE08F2"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Default/travels/{prefectureCode}/GET/Resource"
+   }
+  },
+  "JourneyMemoApitravelsprefectureCodePUTApiPermissionJourneyMemoStackJourneyMemoApiFE3BC602PUTtravelsprefectureCodeB277A214": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "TravelsFunctionDD906EF7",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:820242939522:",
+       {
+        "Ref": "JourneyMemoApi7FCE08F2"
+       },
+       "/",
+       {
+        "Ref": "JourneyMemoApiDeploymentStageprodAD6AC5C1"
+       },
+       "/PUT/travels/*"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Default/travels/{prefectureCode}/PUT/ApiPermission.JourneyMemoStackJourneyMemoApiFE3BC602.PUT..travels.{prefectureCode}"
+   }
+  },
+  "JourneyMemoApitravelsprefectureCodePUTApiPermissionTestJourneyMemoStackJourneyMemoApiFE3BC602PUTtravelsprefectureCodeA70D3A23": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "TravelsFunctionDD906EF7",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:us-east-1:820242939522:",
+       {
+        "Ref": "JourneyMemoApi7FCE08F2"
+       },
+       "/test-invoke-stage/PUT/travels/*"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Default/travels/{prefectureCode}/PUT/ApiPermission.Test.JourneyMemoStackJourneyMemoApiFE3BC602.PUT..travels.{prefectureCode}"
+   }
+  },
+  "JourneyMemoApitravelsprefectureCodePUT0772E4EC": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "PUT",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "TravelsFunctionDD906EF7",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "JourneyMemoApitravelsprefectureCode5A9AFCDB"
+    },
+    "RestApiId": {
+     "Ref": "JourneyMemoApi7FCE08F2"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/JourneyMemoApi/Default/travels/{prefectureCode}/PUT/Resource"
+   }
+  },
+  "ApiRewriteFunction01D3EF57": {
+   "Type": "AWS::CloudFront::Function",
+   "Properties": {
+    "AutoPublish": true,
+    "FunctionCode": "\nfunction handler(event) {\n  var request = event.request;\n  request.uri = request.uri.replace(/^\\/api/, '') || '/';\n  return request;\n}\n      ",
+    "FunctionConfig": {
+     "Comment": "us-east-1JourneyMemoStackiRewriteFunction3B637166",
+     "Runtime": "cloudfront-js-2.0"
+    },
+    "Name": "us-east-1JourneyMemoStackiRewriteFunction3B637166"
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/ApiRewriteFunction/Resource"
+   }
+  },
+  "WebsiteBucket75C24D94": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "PublicAccessBlockConfiguration": {
+     "BlockPublicAcls": true,
+     "BlockPublicPolicy": true,
+     "IgnorePublicAcls": true,
+     "RestrictPublicBuckets": true
+    },
+    "Tags": [
+     {
+      "Key": "aws-cdk:auto-delete-objects",
+      "Value": "true"
+     },
+     {
+      "Key": "aws-cdk:cr-owned:33230e02",
+      "Value": "true"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/WebsiteBucket/Resource"
+   }
+  },
+  "WebsiteBucketPolicyE10E3262": {
+   "Type": "AWS::S3::BucketPolicy",
+   "Properties": {
+    "Bucket": {
+     "Ref": "WebsiteBucket75C24D94"
+    },
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:PutBucketPolicy"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "WebsiteBucket75C24D94",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "WebsiteBucket75C24D94",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "s3:GetObject",
+       "Condition": {
+        "StringEquals": {
+         "AWS:SourceArn": {
+          "Fn::Join": [
+           "",
+           [
+            "arn:",
+            {
+             "Ref": "AWS::Partition"
+            },
+            ":cloudfront::",
+            {
+             "Ref": "AWS::AccountId"
+            },
+            ":distribution/",
+            {
+             "Ref": "Distribution830FAC52"
+            }
+           ]
+          ]
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "cloudfront.amazonaws.com"
+       },
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Fn::GetAtt": [
+            "WebsiteBucket75C24D94",
+            "Arn"
+           ]
+          },
+          "/*"
+         ]
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/WebsiteBucket/Policy/Resource"
+   }
+  },
+  "WebsiteBucketAutoDeleteObjectsCustomResource8750E461": {
+   "Type": "Custom::S3AutoDeleteObjects",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+      "Arn"
+     ]
+    },
+    "BucketName": {
+     "Ref": "WebsiteBucket75C24D94"
+    }
+   },
+   "DependsOn": [
+    "WebsiteBucketPolicyE10E3262"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/WebsiteBucket/AutoDeleteObjectsCustomResource/Default"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Version": "2012-10-17",
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ]
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-820242939522-us-east-1",
+     "S3Key": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip"
+    },
+    "Timeout": 900,
+    "MemorySize": 128,
+    "Handler": "index.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Lambda function for auto-deleting objects in ",
+       {
+        "Ref": "WebsiteBucket75C24D94"
+       },
+       " S3 bucket."
+      ]
+     ]
+    }
+   },
+   "DependsOn": [
+    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler",
+    "aws:asset:path": "asset.faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6",
+    "aws:asset:property": "Code"
+   }
+  },
+  "OAC5B452445": {
+   "Type": "AWS::CloudFront::OriginAccessControl",
+   "Properties": {
+    "OriginAccessControlConfig": {
+     "Name": "JourneyMemoStackOAC0D9F4693",
+     "OriginAccessControlOriginType": "s3",
+     "SigningBehavior": "no-override",
+     "SigningProtocol": "sigv4"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/OAC/Resource"
+   }
+  },
+  "Distribution830FAC52": {
+   "Type": "AWS::CloudFront::Distribution",
+   "Properties": {
+    "DistributionConfig": {
+     "CacheBehaviors": [
+      {
+       "AllowedMethods": [
+        "GET",
+        "HEAD",
+        "OPTIONS",
+        "PUT",
+        "PATCH",
+        "POST",
+        "DELETE"
+       ],
+       "CachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad",
+       "Compress": true,
+       "FunctionAssociations": [
+        {
+         "EventType": "viewer-request",
+         "FunctionARN": {
+          "Fn::GetAtt": [
+           "ApiRewriteFunction01D3EF57",
+           "FunctionARN"
+          ]
+         }
+        }
+       ],
+       "OriginRequestPolicyId": "b689b0a8-53d0-40ab-baf2-68738e2966ac",
+       "PathPattern": "/api/*",
+       "TargetOriginId": "JourneyMemoStackDistributionOrigin2E76F4BE9",
+       "ViewerProtocolPolicy": "redirect-to-https"
+      }
+     ],
+     "CustomErrorResponses": [
+      {
+       "ErrorCode": 403,
+       "ResponseCode": 200,
+       "ResponsePagePath": "/index.html"
+      },
+      {
+       "ErrorCode": 404,
+       "ResponseCode": 200,
+       "ResponsePagePath": "/index.html"
+      }
+     ],
+     "DefaultCacheBehavior": {
+      "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+      "Compress": true,
+      "TargetOriginId": "JourneyMemoStackDistributionOrigin19518A235",
+      "ViewerProtocolPolicy": "redirect-to-https"
+     },
+     "DefaultRootObject": "index.html",
+     "Enabled": true,
+     "HttpVersion": "http2",
+     "IPV6Enabled": true,
+     "Origins": [
+      {
+       "DomainName": {
+        "Fn::GetAtt": [
+         "WebsiteBucket75C24D94",
+         "RegionalDomainName"
+        ]
+       },
+       "Id": "JourneyMemoStackDistributionOrigin19518A235",
+       "OriginAccessControlId": {
+        "Fn::GetAtt": [
+         "OAC5B452445",
+         "Id"
+        ]
+       },
+       "S3OriginConfig": {
+        "OriginAccessIdentity": ""
+       }
+      },
+      {
+       "CustomOriginConfig": {
+        "OriginProtocolPolicy": "https-only",
+        "OriginSSLProtocols": [
+         "TLSv1.2"
+        ]
+       },
+       "DomainName": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Ref": "JourneyMemoApi7FCE08F2"
+          },
+          ".execute-api.us-east-1.amazonaws.com"
+         ]
+        ]
+       },
+       "Id": "JourneyMemoStackDistributionOrigin2E76F4BE9",
+       "OriginPath": {
+        "Fn::Join": [
+         "",
+         [
+          "/",
+          {
+           "Ref": "JourneyMemoApiDeploymentStageprodAD6AC5C1"
+          }
+         ]
+        ]
+       }
+      }
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/Distribution/Resource"
+   }
+  },
+  "WebsiteDeploymentAwsCliLayer5BFD2264": {
+   "Type": "AWS::Lambda::LayerVersion",
+   "Properties": {
+    "Content": {
+     "S3Bucket": "cdk-hnb659fds-assets-820242939522-us-east-1",
+     "S3Key": "e2659170a0721541efa761a8d5d04d5e36cbbf691c4b15a9053002b7c825055d.zip"
+    },
+    "Description": "/opt/awscli/aws"
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/WebsiteDeployment/AwsCliLayer/Resource",
+    "aws:asset:path": "asset.e2659170a0721541efa761a8d5d04d5e36cbbf691c4b15a9053002b7c825055d.zip",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Content"
+   }
+  },
+  "WebsiteDeploymentCustomResourceHandlerinlinePolicyAddedToExecutionRole08FB09179": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "cloudfront:CreateInvalidation",
+        "cloudfront:GetInvalidation"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "WebsiteDeploymentCustomResourceHandlerinlinePolicyAddedToExecutionRole08FB09179",
+    "Roles": [
+     {
+      "Ref": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/WebsiteDeployment/CustomResourceHandler/inlinePolicyAddedToExecutionRole-0/Resource"
+   }
+  },
+  "WebsiteDeploymentCustomResourceA1782F82": {
+   "Type": "Custom::CDKBucketDeployment",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536",
+      "Arn"
+     ]
+    },
+    "SourceBucketNames": [
+     "cdk-hnb659fds-assets-820242939522-us-east-1"
+    ],
+    "SourceObjectKeys": [
+     "a35033af82c2114e21f5cc2a77acfd305ee410ababe5096384cef70a17b4ff45.zip"
+    ],
+    "DestinationBucketName": {
+     "Ref": "WebsiteBucket75C24D94"
+    },
+    "WaitForDistributionInvalidation": true,
+    "Prune": true,
+    "DistributionId": {
+     "Ref": "Distribution830FAC52"
+    },
+    "DistributionPaths": [
+     "/*"
+    ],
+    "OutputObjectKeys": true
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/WebsiteDeployment/CustomResource/Default"
+   }
+  },
+  "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/Resource"
+   }
+  },
+  "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:GetBucket*",
+        "s3:GetObject*",
+        "s3:List*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        "arn:aws:s3:::cdk-hnb659fds-assets-820242939522-us-east-1",
+        "arn:aws:s3:::cdk-hnb659fds-assets-820242939522-us-east-1/*"
+       ]
+      },
+      {
+       "Action": [
+        "s3:Abort*",
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:GetObject*",
+        "s3:List*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "WebsiteBucket75C24D94",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "WebsiteBucket75C24D94",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF",
+    "Roles": [
+     {
+      "Ref": "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C81C01536": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-820242939522-us-east-1",
+     "S3Key": "3423a042b818e31c1e34a19d6689ab2e5f9b70fcbe9e71df66f241b20a200bd9.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "AWS_CA_BUNDLE": "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem"
+     }
+    },
+    "Handler": "index.handler",
+    "Layers": [
+     {
+      "Ref": "WebsiteDeploymentAwsCliLayer5BFD2264"
+     }
+    ],
+    "Role": {
+     "Fn::GetAtt": [
+      "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265",
+      "Arn"
+     ]
+    },
+    "Runtime": "python3.13",
+    "Timeout": 900
+   },
+   "DependsOn": [
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRoleDefaultPolicy88902FDF",
+    "CustomCDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756CServiceRole89A01265"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/Custom::CDKBucketDeployment8693BB64968944B69AAFB0CC9EB8756C/Resource",
+    "aws:asset:path": "asset.3423a042b818e31c1e34a19d6689ab2e5f9b70fcbe9e71df66f241b20a200bd9",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/5VSwYrbMBD9ls1ZUUvSQ+nN69DTbneJSy+lBFmeuJPIUtCM1jXC/14kO4kpeykI5r2Z0WPmSRu5+fRZfnxQPa11c14brGWsWOmzUD0dYjNY1bmmlvG7qg2I8mgzGIVRXd2og3UNnEh+y+FrsJrRWYGqk3Hvpgs5vjqDekh0QqOg7SEqImCSRQqigYtxQweW5WPQZ+DdLZG6ZZyyj4pATDDJTehnXHX4B+3qy2q5StqBtjKXaFYtArsdGGB4qU+gmVbjr1nvPuSS/4f2dKFixZDGTtJXp2Qsj/ZmUPIBfIdEM3tSA/gf4DOv0LYG2N37r2AU6oKtYujVIOMeiIsLZpNnePcsZResYtXm55jAHsgFryG7+Qz82zWpOKNrdVbOeBTauNAcvbMs43KTG662Lx5btIXWQFQ6y96Z1PFeeofEHutwVVnycbyPkD9HGhptm7UCXwKLMhC77r1B/ym9eveGDfi86fxrTXL7oHrSBmXRU2kwP8Ao0n+WJ/rwttnIdB5OhLj2wTJ2IPdT/AvOufjuNgMAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "JourneyMemoStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "JourneyMemoApiEndpointB28F80A1": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "JourneyMemoApi7FCE08F2"
+      },
+      ".execute-api.us-east-1.",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "JourneyMemoApiDeploymentStageprodAD6AC5C1"
+      },
+      "/"
+     ]
+    ]
+   }
+  },
+  "CloudFrontURL": {
+   "Description": "アプリケーションURL",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Fn::GetAtt": [
+        "Distribution830FAC52",
+        "DomainName"
+       ]
+      }
+     ]
+    ]
+   }
+  },
+  "ApiEndpoint": {
+   "Description": "API エンドポイント",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "JourneyMemoApi7FCE08F2"
+      },
+      ".execute-api.us-east-1.",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "JourneyMemoApiDeploymentStageprodAD6AC5C1"
+      },
+      "/"
+     ]
+    ]
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

@@ -148,8 +148,21 @@ cd /home/okazawa/journey-memo/cdk
 npx cdk destroy
 ```
 
-**注意**: DynamoDB テーブルは `RemovalPolicy.RETAIN` に設定されているため、スタック削除後もデータは残ります。
-テーブルも削除する場合は AWS マネジメントコンソールから手動で削除してください。
+**注意**: 以下のリソースは `RemovalPolicy.RETAIN` に設定されているため、スタック削除後も残り続けます。**放置するとストレージ料金が継続して発生します。** 不要な場合は AWS マネジメントコンソールから手動で削除してください。
+
+| リソース | 内容 | 削除方法 |
+|---------|------|---------|
+| DynamoDB テーブル | `journey-memo-travels`（旅行記録） | DynamoDB コンソール → テーブル選択 → 削除 |
+| S3 バケット（写真） | `journeymemostack-photobucket...`（アップロード写真） | S3 コンソール → バケット内オブジェクトを全削除 → バケット削除 |
+
+> **写真バケットの削除手順**
+> S3 バケットはオブジェクトが残っていると削除できません。先にバケット内の写真をすべて削除してからバケットを削除してください。
+> ```bash
+> # AWS CLI で一括削除する場合
+> aws s3 rm s3://<写真バケット名> --recursive
+> aws s3 rb s3://<写真バケット名>
+> ```
+> バケット名は `cdk deploy` 時の出力 `JourneyMemoStack.PhotoBucketName` で確認できます。
 
 ---
 

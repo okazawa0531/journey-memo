@@ -22,16 +22,31 @@ export class JourneyMemoStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.RETAIN,
     })
 
+    // 写真用 S3 バケット
+    const photoBucket = new s3.Bucket(this, 'PhotoBucket', {
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      cors: [
+        {
+          allowedMethods: [s3.HttpMethods.PUT],
+          allowedOrigins: ['*'],
+          allowedHeaders: ['*'],
+          maxAge: 3000,
+        },
+      ],
+    })
+
     const lambdaEnv = {
       TABLE_NAME: table.tableName,
       JWT_SECRET: 'journey-memo-secret-change-in-production',
+      PHOTO_BUCKET: photoBucket.bucketName,
     }
 
-    // Auth Lambda (NodejsFunction で依存パッケージを自動バンドル)
+    // Auth Lambda
     const authFn = new NodejsFunction(this, 'AuthFunction', {
       entry: path.join(__dirname, '../../backend/src/auth.ts'),
       handler: 'handler',
-      runtime: lambda.Runtime.NODEJS_20_X,
+      runtime: lambda.Runtime.NODEJS_24_X,
       environment: lambdaEnv,
       timeout: cdk.Duration.seconds(10),
       bundling: {
@@ -44,7 +59,7 @@ export class JourneyMemoStack extends cdk.Stack {
     const travelsFn = new NodejsFunction(this, 'TravelsFunction', {
       entry: path.join(__dirname, '../../backend/src/travels.ts'),
       handler: 'handler',
-      runtime: lambda.Runtime.NODEJS_20_X,
+      runtime: lambda.Runtime.NODEJS_24_X,
       environment: lambdaEnv,
       timeout: cdk.Duration.seconds(10),
       bundling: {
@@ -53,7 +68,22 @@ export class JourneyMemoStack extends cdk.Stack {
       },
     })
 
+    // Photos Lambda
+    const photosFn = new NodejsFunction(this, 'PhotosFunction', {
+      entry: path.join(__dirname, '../../backend/src/photos.ts'),
+      handler: 'handler',
+      runtime: lambda.Runtime.NODEJS_24_X,
+      environment: lambdaEnv,
+      timeout: cdk.Duration.seconds(15),
+      bundling: {
+        minify: true,
+        sourceMap: false,
+      },
+    })
+
     table.grantReadWriteData(travelsFn)
+    photoBucket.grantPut(photosFn)
+    photoBucket.grantDelete(photosFn)
 
     // API Gateway
     const api = new apigateway.RestApi(this, 'JourneyMemoApi', {
@@ -75,6 +105,10 @@ export class JourneyMemoStack extends cdk.Stack {
     prefectureResource.addMethod('GET', new apigateway.LambdaIntegration(travelsFn))
     prefectureResource.addMethod('PUT', new apigateway.LambdaIntegration(travelsFn))
 
+    const photosResource = api.root.addResource('photos')
+    photosResource.addMethod('POST', new apigateway.LambdaIntegration(photosFn))
+    photosResource.addMethod('DELETE', new apigateway.LambdaIntegration(photosFn))
+
     // CloudFront Function: /api/* → /* にパスを書き換え
     const apiRewriteFn = new cloudfront.Function(this, 'ApiRewriteFunction', {
       code: cloudfront.FunctionCode.fromInline(`
@@ -94,8 +128,13 @@ function handler(event) {
       autoDeleteObjects: true,
     })
 
-    // CloudFront OAC
+    // CloudFront OAC (フロントエンド)
     const oac = new cloudfront.S3OriginAccessControl(this, 'OAC', {
+      signing: cloudfront.Signing.SIGV4_NO_OVERRIDE,
+    })
+
+    // CloudFront OAC (写真)
+    const photoOac = new cloudfront.S3OriginAccessControl(this, 'PhotoOAC', {
       signing: cloudfront.Signing.SIGV4_NO_OVERRIDE,
     })
 
@@ -123,6 +162,13 @@ function handler(event) {
               eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
             },
           ],
+        },
+        '/photos/*': {
+          origin: origins.S3BucketOrigin.withOriginAccessControl(photoBucket, {
+            originAccessControl: photoOac,
+          }),
+          viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
         },
       },
       defaultRootObject: 'index.html',
@@ -157,6 +203,11 @@ function handler(event) {
     new cdk.CfnOutput(this, 'ApiEndpoint', {
       value: api.url,
       description: 'API エンドポイント',
+    })
+
+    new cdk.CfnOutput(this, 'PhotoBucketName', {
+      value: photoBucket.bucketName,
+      description: '写真保存用S3バケット',
     })
   }
 }

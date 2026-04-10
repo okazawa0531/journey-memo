@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { TravelRecord, Visit, getTravelRecord, saveTravelRecord } from '../api'
+import { useState, useEffect, useRef } from 'react'
+import { TravelRecord, Visit, getTravelRecord, saveTravelRecord, getPhotoUploadUrl, deletePhoto } from '../api'
 import { PREFECTURE_NAMES } from './PrefectureList'
 
 interface Props {
@@ -14,14 +14,18 @@ export default function PrefectureModal({ prefectureCode, existingRecord, onSave
     prefectureCode,
     notes: '',
     visits: [],
+    photos: [],
   })
   const [newDate, setNewDate] = useState('')
   const [newDestination, setNewDestination] = useState('')
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState(false)
+  const [lightboxKey, setLightboxKey] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   function normalize(data: TravelRecord): TravelRecord {
-    return { ...data, visits: data.visits ?? [] }
+    return { ...data, visits: data.visits ?? [], photos: data.photos ?? [] }
   }
 
   useEffect(() => {
@@ -64,9 +68,44 @@ export default function PrefectureModal({ prefectureCode, existingRecord, onSave
     setRecord(prev => ({ ...prev, visits: prev.visits.filter((_, i) => i !== index) }))
   }
 
+  async function handlePhotoSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      alert('画像ファイルを選択してください')
+      return
+    }
+
+    setUploading(true)
+    try {
+      const { uploadUrl, key } = await getPhotoUploadUrl(prefectureCode, file.type)
+      await fetch(uploadUrl, {
+        method: 'PUT',
+        body: file,
+        headers: { 'Content-Type': file.type },
+      })
+      setRecord(prev => ({ ...prev, photos: [...(prev.photos ?? []), key] }))
+    } catch (_e) {
+      alert('写真のアップロードに失敗しました')
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  async function removePhoto(key: string) {
+    try {
+      await deletePhoto(key)
+    } catch (_e) {
+      // S3削除に失敗しても記録からは除去する
+    }
+    setRecord(prev => ({ ...prev, photos: (prev.photos ?? []).filter(k => k !== key) }))
+  }
+
   const prefName = PREFECTURE_NAMES[prefectureCode] || prefectureCode
 
   return (
+    <>
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="bg-primary-700 text-white px-6 py-4 rounded-t-2xl flex items-center justify-between">
@@ -124,6 +163,45 @@ export default function PrefectureModal({ prefectureCode, existingRecord, onSave
               </div>
             </div>
 
+            {/* 写真 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">写真</label>
+              {(record.photos ?? []).length > 0 && (
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                  {(record.photos ?? []).map(key => (
+                    <div key={key} className="relative group aspect-square">
+                      <img
+                        src={`/${key}`}
+                        alt="旅行写真"
+                        onClick={() => setLightboxKey(key)}
+                        className="w-full h-full object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
+                      />
+                      <button
+                        onClick={() => removePhoto(key)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        &#x2715;
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handlePhotoSelect}
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="w-full border-2 border-dashed border-primary-300 text-primary-600 hover:border-primary-500 hover:bg-primary-50 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+              >
+                {uploading ? 'アップロード中...' : '+ 写真を追加'}
+              </button>
+            </div>
+
             {/* メモ */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">メモ</label>
@@ -155,5 +233,27 @@ export default function PrefectureModal({ prefectureCode, existingRecord, onSave
         )}
       </div>
     </div>
+
+    {lightboxKey && (
+
+      <div
+        className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[60] p-4"
+        onClick={() => setLightboxKey(null)}
+      >
+        <img
+          src={`/${lightboxKey}`}
+          alt="旅行写真"
+          className="max-w-full max-h-full object-contain rounded-lg"
+          onClick={e => e.stopPropagation()}
+        />
+        <button
+          onClick={() => setLightboxKey(null)}
+          className="absolute top-4 right-4 text-white text-3xl leading-none hover:text-gray-300"
+        >
+          &#x2715;
+        </button>
+      </div>
+    )}
+    </>
   )
 }

@@ -24,6 +24,7 @@ export interface TravelRecord {
   prefectureCode: string
   notes: string
   visits: Visit[]
+  photos?: string[]
 }
 
 export async function getTravelRecord(prefectureCode: string): Promise<TravelRecord | null> {
@@ -41,6 +42,31 @@ export async function getAllTravelRecords(): Promise<TravelRecord[]> {
   })
   if (!res.ok) throw new Error('取得失敗')
   return res.json()
+}
+
+export async function getPhotoUploadUrl(prefectureCode: string, contentType: string): Promise<{ uploadUrl: string; key: string }> {
+  const res = await fetch(`${API_URL}/photos`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify({ prefectureCode, contentType }),
+  })
+  if (!res.ok) throw new Error('アップロードURL取得失敗')
+  return res.json()
+}
+
+export async function deletePhoto(key: string): Promise<void> {
+  const res = await fetch(`${API_URL}/photos`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify({ key }),
+  })
+  if (!res.ok) throw new Error('写真削除失敗')
 }
 
 export async function saveTravelRecord(record: TravelRecord): Promise<void> {

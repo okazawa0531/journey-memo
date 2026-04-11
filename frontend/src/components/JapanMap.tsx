@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 
 interface Props {
   visitedPrefectures: Set<string>
@@ -156,6 +156,7 @@ const PREFECTURE_PATHS: Record<string, string> = {
 
 export default function JapanMap({ visitedPrefectures, onPrefectureClick }: Props) {
   const [tooltip, setTooltip] = useState<{ name: string; x: number; y: number } | null>(null)
+  const svgRectRef = useRef<DOMRect | null>(null)
 
   function getPathColor(code: string, isHovered: boolean): string {
     const visited = visitedPrefectures.has(code)
@@ -167,6 +168,7 @@ export default function JapanMap({ visitedPrefectures, onPrefectureClick }: Prop
 
   function handleMouseEnter(e: React.MouseEvent<SVGPathElement>, code: string) {
     const rect = (e.currentTarget.closest('svg') as SVGSVGElement).getBoundingClientRect()
+    svgRectRef.current = rect
     const svgX = e.clientX - rect.left
     const svgY = e.clientY - rect.top
     setTooltip({ name: PREFECTURE_NAMES[code], x: svgX, y: svgY - 30 })
@@ -176,15 +178,15 @@ export default function JapanMap({ visitedPrefectures, onPrefectureClick }: Prop
 
   function handleMouseLeave(e: React.MouseEvent<SVGPathElement>, code: string) {
     setTooltip(null)
+    svgRectRef.current = null
     e.currentTarget.removeAttribute('data-hovered')
     e.currentTarget.setAttribute('fill', getPathColor(code, false))
   }
 
   function handleMouseMove(e: React.MouseEvent<SVGPathElement>) {
-    if (tooltip) {
-      const rect = (e.currentTarget.closest('svg') as SVGSVGElement).getBoundingClientRect()
-      const svgX = e.clientX - rect.left
-      const svgY = e.clientY - rect.top
+    if (tooltip && svgRectRef.current) {
+      const svgX = e.clientX - svgRectRef.current.left
+      const svgY = e.clientY - svgRectRef.current.top
       setTooltip(prev => prev ? { ...prev, x: svgX, y: svgY - 30 } : null)
     }
   }

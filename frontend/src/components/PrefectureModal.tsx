@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { TravelRecord, Visit, getTravelRecord, saveTravelRecord, getPhotoUploadUrl, deletePhoto } from '../api'
+import { TravelRecord, Visit, Photo, getTravelRecord, saveTravelRecord, getPhotoUploadUrl, deletePhoto } from '../api'
 import { PREFECTURE_NAMES } from './PrefectureList'
 
 interface Props {
@@ -22,21 +22,16 @@ export default function PrefectureModal({ prefectureCode, existingRecord, onSave
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
   const [lightboxKey, setLightboxKey] = useState<string | null>(null)
+  const [selectedDestForPhoto, setSelectedDestForPhoto] = useState('')
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  function normalize(data: TravelRecord): TravelRecord {
-    return { ...data, visits: data.visits ?? [], photos: data.photos ?? [] }
-  }
 
   useEffect(() => {
     if (existingRecord) {
-      setRecord(normalize(existingRecord))
+      setRecord(existingRecord)
       setLoading(false)
     } else {
       getTravelRecord(prefectureCode)
-        .then(data => {
-          if (data) setRecord(normalize(data))
-        })
+        .then(data => { if (data) setRecord(data) })
         .finally(() => setLoading(false))
     }
   }, [prefectureCode, existingRecord])
@@ -84,7 +79,11 @@ export default function PrefectureModal({ prefectureCode, existingRecord, onSave
         body: file,
         headers: { 'Content-Type': file.type },
       })
-      setRecord(prev => ({ ...prev, photos: [...(prev.photos ?? []), key] }))
+      const newPhoto: Photo = {
+        key,
+        ...(selectedDestForPhoto ? { visitDestination: selectedDestForPhoto } : {}),
+      }
+      setRecord(prev => ({ ...prev, photos: [...(prev.photos ?? []), newPhoto] }))
     } catch (_e) {
       alert('写真のアップロードに失敗しました')
     } finally {
@@ -99,7 +98,7 @@ export default function PrefectureModal({ prefectureCode, existingRecord, onSave
     } catch (_e) {
       // S3削除に失敗しても記録からは除去する
     }
-    setRecord(prev => ({ ...prev, photos: (prev.photos ?? []).filter(k => k !== key) }))
+    setRecord(prev => ({ ...prev, photos: (prev.photos ?? []).filter(p => p.key !== key) }))
   }
 
   const prefName = PREFECTURE_NAMES[prefectureCode] || prefectureCode
@@ -119,7 +118,6 @@ export default function PrefectureModal({ prefectureCode, existingRecord, onSave
           </div>
         ) : (
           <div className="p-6 space-y-5">
-            {/* 訪問記録（日付＋行き先） */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">訪問記録</label>
               <div className="space-y-2 mb-3">
@@ -163,21 +161,25 @@ export default function PrefectureModal({ prefectureCode, existingRecord, onSave
               </div>
             </div>
 
-            {/* 写真 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">写真</label>
               {(record.photos ?? []).length > 0 && (
                 <div className="grid grid-cols-3 gap-2 mb-3">
-                  {(record.photos ?? []).map(key => (
-                    <div key={key} className="relative group aspect-square">
+                  {(record.photos ?? []).map(photo => (
+                    <div key={photo.key} className="relative group aspect-square">
                       <img
-                        src={`/${key}`}
+                        src={`/${photo.key}`}
                         alt="旅行写真"
-                        onClick={() => setLightboxKey(key)}
+                        onClick={() => setLightboxKey(photo.key)}
                         className="w-full h-full object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-90 transition-opacity"
                       />
+                      {photo.visitDestination && (
+                        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white text-xs px-1 py-0.5 rounded-b-lg truncate">
+                          {photo.visitDestination}
+                        </div>
+                      )}
                       <button
-                        onClick={() => removePhoto(key)}
+                        onClick={() => removePhoto(photo.key)}
                         className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         &#x2715;
@@ -185,6 +187,18 @@ export default function PrefectureModal({ prefectureCode, existingRecord, onSave
                     </div>
                   ))}
                 </div>
+              )}
+              {record.visits.length > 0 && (
+                <select
+                  value={selectedDestForPhoto}
+                  onChange={e => setSelectedDestForPhoto(e.target.value)}
+                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 mb-2"
+                >
+                  <option value="">行き先を指定しない</option>
+                  {record.visits.map(v => (
+                    <option key={v.destination} value={v.destination}>{v.destination}</option>
+                  ))}
+                </select>
               )}
               <input
                 ref={fileInputRef}
@@ -202,7 +216,6 @@ export default function PrefectureModal({ prefectureCode, existingRecord, onSave
               </button>
             </div>
 
-            {/* メモ */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">メモ</label>
               <textarea
@@ -235,7 +248,6 @@ export default function PrefectureModal({ prefectureCode, existingRecord, onSave
     </div>
 
     {lightboxKey && (
-
       <div
         className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[60] p-4"
         onClick={() => setLightboxKey(null)}

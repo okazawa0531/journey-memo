@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PrefectureList from '../components/PrefectureList'
 import PrefectureModal from '../components/PrefectureModal'
@@ -30,7 +30,10 @@ export default function TravelPage() {
     setSelectedPrefecture(null)
   }
 
-  const visitedCount = Object.values(records).filter(r => r.visits && r.visits.length > 0).length
+  const visitedPrefectures = useMemo(
+    () => new Set(Object.values(records).filter(r => r.visits?.length > 0).map(r => r.prefectureCode)),
+    [records]
+  )
 
   return (
     <div className="min-h-screen bg-primary-50">
@@ -41,7 +44,7 @@ export default function TravelPage() {
         </div>
         <div className="flex items-center gap-4">
           <span className="text-sm text-primary-200">
-            {visitedCount} / 47 都道府県
+            {visitedPrefectures.size} / 47 都道府県
           </span>
           <button
             onClick={handleLogout}
@@ -63,7 +66,7 @@ export default function TravelPage() {
             </div>
           ) : (
             <PrefectureList
-              visitedPrefectures={new Set(Object.values(records).filter(r => r.visits && r.visits.length > 0).map(r => r.prefectureCode))}
+              visitedPrefectures={visitedPrefectures}
               onPrefectureClick={setSelectedPrefecture}
             />
           )}

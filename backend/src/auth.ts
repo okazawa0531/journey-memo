@@ -1,14 +1,9 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import jwt from 'jsonwebtoken'
+import { CORS_HEADERS } from './utils'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'journey-memo-secret'
 const CORRECT_PASSWORD = 'okazawa'
-
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-  'Access-Control-Allow-Methods': 'POST,OPTIONS',
-}
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   if (event.httpMethod === 'OPTIONS') {

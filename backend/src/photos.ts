@@ -1,29 +1,11 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import jwt from 'jsonwebtoken'
+import { CORS_HEADERS, verifyToken } from './utils'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'journey-memo-secret'
 const PHOTO_BUCKET = process.env.PHOTO_BUCKET || ''
 
 const s3 = new S3Client({})
-
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-  'Access-Control-Allow-Methods': 'POST,DELETE,OPTIONS',
-}
-
-function verifyToken(event: APIGatewayProxyEvent): boolean {
-  const auth = event.headers.Authorization || event.headers.authorization || ''
-  const token = auth.replace('Bearer ', '')
-  try {
-    jwt.verify(token, JWT_SECRET)
-    return true
-  } catch {
-    return false
-  }
-}
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   if (event.httpMethod === 'OPTIONS') {
@@ -34,7 +16,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return { statusCode: 401, headers: CORS_HEADERS, body: JSON.stringify({ message: '認証が必要です' }) }
   }
 
-  // POST /photos - presigned アップロードURL取得
   if (event.httpMethod === 'POST') {
     const body = JSON.parse(event.body || '{}')
     const { prefectureCode, contentType } = body
@@ -55,7 +36,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
   }
 
-  // DELETE /photos - S3オブジェクト削除
   if (event.httpMethod === 'DELETE') {
     const body = JSON.parse(event.body || '{}')
     const { key } = body

@@ -1,30 +1,12 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
-import jwt from 'jsonwebtoken'
+import { CORS_HEADERS, verifyToken } from './utils'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'journey-memo-secret'
 const TABLE_NAME = process.env.TABLE_NAME || 'journey-memo-travels'
 
 const client = new DynamoDBClient({})
 const ddb = DynamoDBDocumentClient.from(client)
-
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-  'Access-Control-Allow-Methods': 'GET,PUT,OPTIONS',
-}
-
-function verifyToken(event: APIGatewayProxyEvent): boolean {
-  const auth = event.headers.Authorization || event.headers.authorization || ''
-  const token = auth.replace('Bearer ', '')
-  try {
-    jwt.verify(token, JWT_SECRET)
-    return true
-  } catch {
-    return false
-  }
-}
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   if (event.httpMethod === 'OPTIONS') {
@@ -39,7 +21,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
   }
 
-  // GET /travels - 全件取得
   if (event.httpMethod === 'GET' && !event.pathParameters?.prefectureCode) {
     const result = await ddb.send(new ScanCommand({ TableName: TABLE_NAME }))
     return {
@@ -51,7 +32,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   const prefectureCode = event.pathParameters?.prefectureCode
 
-  // GET /travels/{prefectureCode}
   if (event.httpMethod === 'GET') {
     const result = await ddb.send(new GetCommand({
       TableName: TABLE_NAME,
@@ -63,7 +43,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return { statusCode: 200, headers: CORS_HEADERS, body: JSON.stringify(result.Item) }
   }
 
-  // PUT /travels/{prefectureCode}
   if (event.httpMethod === 'PUT') {
     const body = JSON.parse(event.body || '{}')
     const item = { ...body, prefectureCode, updatedAt: new Date().toISOString() }
